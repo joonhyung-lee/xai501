@@ -1,0 +1,178 @@
+<html>
+<head>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<p>The MLE equation for the weight vector $\mathbf{w}_{\text{MLE}}$ is derived by maximizing the likelihood function with respect to $\mathbf{w}$. Here's the step-by-step explanation:</p>
+
+<ol>
+<li>In linear regression, we assume that the target variable $\mathbf{t}$ is modeled as a linear combination of the input features $\mathbf{\Phi}$ and the weight vector $\mathbf{w}$, plus some Gaussian noise $\epsilon$:
+
+$$\mathbf{t} = \mathbf{\Phi}\mathbf{w} + \epsilon$$</li>
+
+<li>The likelihood function $p(\mathbf{t} | \mathbf{w}, \mathbf{\Phi})$ represents the probability of observing the target values $\mathbf{t}$ given the weight vector $\mathbf{w}$ and the design matrix $\mathbf{\Phi}$. Assuming the noise $\epsilon$ follows a Gaussian distribution with zero mean and variance $\sigma^2$, the likelihood function is given by:
+
+$$p(\mathbf{t} | \mathbf{w}, \mathbf{\Phi}) = \mathcal{N}(\mathbf{t} | \mathbf{\Phi}\mathbf{w}, \sigma^2\mathbf{I})$$</li>
+
+<li>To find the MLE estimate of $\mathbf{w}$, we maximize the log-likelihood function $\log p(\mathbf{t} | \mathbf{w}, \mathbf{\Phi})$ with respect to $\mathbf{w}$. The log-likelihood function is given by:
+
+$$\log p(\mathbf{t} | \mathbf{w}, \mathbf{\Phi}) = -\frac{1}{2\sigma^2} (\mathbf{t} - \mathbf{\Phi}\mathbf{w})^T (\mathbf{t} - \mathbf{\Phi}\mathbf{w}) - \frac{N}{2} \log(2\pi\sigma^2)$$</li>
+
+<li>To maximize the log-likelihood function, we set its gradient with respect to $\mathbf{w}$ to zero:
+
+$$\nabla_{\mathbf{w}} \log p(\mathbf{t} | \mathbf{w}, \mathbf{\Phi}) = -\frac{1}{\sigma^2} \mathbf{\Phi}^T (\mathbf{t} - \mathbf{\Phi}\mathbf{w}) = 0$$</li>
+
+<li>Solving for $\mathbf{w}$, we get:
+
+$$\mathbf{\Phi}^T (\mathbf{t} - \mathbf{\Phi}\mathbf{w}) = 0$$
+
+$$\mathbf{\Phi}^T \mathbf{t} - \mathbf{\Phi}^T \mathbf{\Phi}\mathbf{w} = 0$$
+
+$$\mathbf{\Phi}^T \mathbf{\Phi}\mathbf{w} = \mathbf{\Phi}^T \mathbf{t}$$</li>
+
+<li>Assuming $\mathbf{\Phi}^T \mathbf{\Phi}$ is invertible, we can multiply both sides by $(\mathbf{\Phi}^T \mathbf{\Phi})^{-1}$ to obtain the MLE estimate of $\mathbf{w}$:
+
+$$\mathbf{w}_{\text{MLE}} = (\mathbf{\Phi}^T \mathbf{\Phi})^{-1} \mathbf{\Phi}^T \mathbf{t}$$</li>
+</ol>
+
+<p>This equation gives us the closed-form solution for the MLE estimate of the weight vector $\mathbf{w}$. It minimizes the sum of squared differences between the predicted values $\mathbf{\Phi}\mathbf{w}$ and the observed target values $\mathbf{t}$.</p>
+
+<p>In the Python code, the <code>np.linalg.pinv</code> function is used to compute the Moore-Penrose pseudo-inverse of $\mathbf{\Phi}$, which is equivalent to $(\mathbf{\Phi}^T \mathbf{\Phi})^{-1} \mathbf{\Phi}^T$. This is a numerically stable way to compute the inverse, especially when $\mathbf{\Phi}^T \mathbf{\Phi}$ is ill-conditioned or not invertible.</p>
+
+Certainly! Here's the explanation for MAP and Bayesian linear regression in HTML format:
+
+<html>
+<head>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+<h2>Maximum a Posteriori (MAP) Estimation</h2>
+<p>In MAP estimation, we incorporate a prior distribution $p(\mathbf{w})$ over the weight vector $\mathbf{w}$. The MAP estimate is obtained by maximizing the posterior distribution $p(\mathbf{w} | \mathbf{t}, \mathbf{\Phi})$, which is proportional to the product of the likelihood function and the prior distribution:</p>
+
+<p>$$p(\mathbf{w} | \mathbf{t}, \mathbf{\Phi}) \propto p(\mathbf{t} | \mathbf{w}, \mathbf{\Phi}) p(\mathbf{w})$$</p>
+
+<p>Assuming a Gaussian prior distribution $p(\mathbf{w}) = \mathcal{N}(\mathbf{w} | \mathbf{0}, \alpha^{-1}\mathbf{I})$ with precision $\alpha$, the MAP estimate is given by:</p>
+
+<p>$$\mathbf{w}_{\text{MAP}} = (\mathbf{\Phi}^T \mathbf{\Phi} + \alpha\mathbf{I})^{-1} \mathbf{\Phi}^T \mathbf{t}$$</p>
+
+<p>In the Python code, the MAP estimation is implemented as:</p>
+
+<pre>
+def map_estimation(x, t, degree, alpha):
+    Phi = design_matrix(x, degree)
+    S_N_inv = alpha*np.eye(degree+1) + Phi.T @ Phi
+    S_N = np.linalg.inv(S_N_inv)
+    m_N = S_N @ Phi.T @ t
+    return m_N
+</pre>
+
+<p>The MAP estimate incorporates the prior information through the precision matrix $\alpha\mathbf{I}$, which acts as a regularization term. The resulting estimate balances the fit to the observed data and the prior beliefs about the weights.</p>
+
+<h2>Bayesian Linear Regression</h2>
+<p>In Bayesian linear regression, we treat the weight vector $\mathbf{w}$ as a random variable and aim to compute the posterior distribution $p(\mathbf{w} | \mathbf{t}, \mathbf{\Phi})$ given the observed data. The posterior distribution is given by:</p>
+
+<p>$$p(\mathbf{w} | \mathbf{t}, \mathbf{\Phi}) = \frac{p(\mathbf{t} | \mathbf{w}, \mathbf{\Phi}) p(\mathbf{w})}{p(\mathbf{t} | \mathbf{\Phi})}$$</p>
+
+<p>Assuming a Gaussian prior distribution $p(\mathbf{w}) = \mathcal{N}(\mathbf{w} | \mathbf{0}, \alpha^{-1}\mathbf{I})$ and a Gaussian likelihood function $p(\mathbf{t} | \mathbf{w}, \mathbf{\Phi}) = \mathcal{N}(\mathbf{t} | \mathbf{\Phi}\mathbf{w}, \beta^{-1}\mathbf{I})$, the posterior distribution is also Gaussian:</p>
+
+<p>$$p(\mathbf{w} | \mathbf{t}, \mathbf{\Phi}) = \mathcal{N}(\mathbf{w} | \mathbf{m}_N, \mathbf{S}_N)$$</p>
+
+<p>where</p>
+
+<p>$$\mathbf{S}_N^{-1} = \alpha\mathbf{I} + \beta\mathbf{\Phi}^T \mathbf{\Phi}$$</p>
+<p>$$\mathbf{m}_N = \beta\mathbf{S}_N \mathbf{\Phi}^T \mathbf{t}$$</p>
+
+<p>In the Python code, Bayesian linear regression is implemented as:</p>
+
+<pre>
+def bayesian_regression(x, t, degree, alpha, beta, x_test):
+    Phi = design_matrix(x, degree)
+    S_N_inv = alpha*np.eye(degree+1) + beta*Phi.T @ Phi
+    S_N = np.linalg.inv(S_N_inv)
+    m_N = beta*S_N @ Phi.T @ t
+    
+    Phi_test = design_matrix(x_test, degree)
+    y_test = Phi_test @ m_N
+    y_var = 1/beta + np.sum(Phi_test @ S_N * Phi_test, axis=1)
+    y_std = np.sqrt(y_var)
+    
+    return y_test, y_std
+</pre>
+
+<p>The predictive distribution for a new input $\mathbf{x}_{\text{test}}$ is obtained by marginalizing over the posterior distribution of $\mathbf{w}$:</p>
+
+<p>$$p(t_{\text{test}} | \mathbf{x}_{\text{test}}, \mathbf{t}, \mathbf{\Phi}) = \int p(t_{\text{test}} | \mathbf{x}_{\text{test}}, \mathbf{w}) p(\mathbf{w} | \mathbf{t}, \mathbf{\Phi}) d\mathbf{w}$$</p>
+
+<p>The predictive distribution is also Gaussian with mean $\mathbf{\phi}(\mathbf{x}_{\text{test}})^T \mathbf{m}_N$ and variance $\beta^{-1} + \mathbf{\phi}(\mathbf{x}_{\text{test}})^T \mathbf{S}_N \mathbf{\phi}(\mathbf{x}_{\text{test}})$, where $\mathbf{\phi}(\mathbf{x}_{\text{test}})$ is the feature vector for the test input.</p>
+
+<p>Bayesian linear regression provides a probabilistic approach to regression by incorporating prior knowledge and quantifying the uncertainty in the predictions through the posterior distribution.</p>
+
+Certainly! Here's the step-by-step derivation of the MAP and Bayesian equations in HTML format:
+
+<h2>Maximum a Posteriori (MAP) Estimation</h2>
+
+<p>In MAP estimation, we maximize the posterior distribution $p(\mathbf{w} | \mathbf{t}, \mathbf{\Phi})$, which is proportional to the product of the likelihood function and the prior distribution:</p>
+
+<p>$$p(\mathbf{w} | \mathbf{t}, \mathbf{\Phi}) \propto p(\mathbf{t} | \mathbf{w}, \mathbf{\Phi}) p(\mathbf{w})$$</p>
+
+<p>Assuming a Gaussian prior distribution $p(\mathbf{w}) = \mathcal{N}(\mathbf{w} | \mathbf{0}, \alpha^{-1}\mathbf{I})$ and a Gaussian likelihood function $p(\mathbf{t} | \mathbf{w}, \mathbf{\Phi}) = \mathcal{N}(\mathbf{t} | \mathbf{\Phi}\mathbf{w}, \beta^{-1}\mathbf{I})$, we have:</p>
+
+<p>$$p(\mathbf{w} | \mathbf{t}, \mathbf{\Phi}) \propto \exp\left(-\frac{\beta}{2} (\mathbf{t} - \mathbf{\Phi}\mathbf{w})^T (\mathbf{t} - \mathbf{\Phi}\mathbf{w})\right) \exp\left(-\frac{\alpha}{2} \mathbf{w}^T \mathbf{w}\right)$$</p>
+
+<p>Taking the logarithm and ignoring constants, we obtain:</p>
+
+<p>$$\log p(\mathbf{w} | \mathbf{t}, \mathbf{\Phi}) = -\frac{\beta}{2} (\mathbf{t} - \mathbf{\Phi}\mathbf{w})^T (\mathbf{t} - \mathbf{\Phi}\mathbf{w}) - \frac{\alpha}{2} \mathbf{w}^T \mathbf{w}$$</p>
+
+<p>Setting the gradient with respect to $\mathbf{w}$ to zero:</p>
+
+<p>$$\nabla_{\mathbf{w}} \log p(\mathbf{w} | \mathbf{t}, \mathbf{\Phi}) = \beta \mathbf{\Phi}^T (\mathbf{t} - \mathbf{\Phi}\mathbf{w}) - \alpha \mathbf{w} = 0$$</p>
+
+<p>Solving for $\mathbf{w}$:</p>
+
+<p>$$(\beta \mathbf{\Phi}^T \mathbf{\Phi} + \alpha \mathbf{I}) \mathbf{w} = \beta \mathbf{\Phi}^T \mathbf{t}$$</p>
+
+<p>$$\mathbf{w}_{\text{MAP}} = (\beta \mathbf{\Phi}^T \mathbf{\Phi} + \alpha \mathbf{I})^{-1} \beta \mathbf{\Phi}^T \mathbf{t}$$</p>
+
+<p>Defining $\mathbf{S}_N^{-1} = \alpha \mathbf{I} + \beta \mathbf{\Phi}^T \mathbf{\Phi}$ and $\mathbf{m}_N = \beta \mathbf{S}_N \mathbf{\Phi}^T \mathbf{t}$, we have:</p>
+
+<p>$$\mathbf{w}_{\text{MAP}} = \mathbf{m}_N$$</p>
+
+<h2>Bayesian Linear Regression</h2>
+
+<p>In Bayesian linear regression, we compute the posterior distribution $p(\mathbf{w} | \mathbf{t}, \mathbf{\Phi})$ using Bayes' theorem:</p>
+
+<p>$$p(\mathbf{w} | \mathbf{t}, \mathbf{\Phi}) = \frac{p(\mathbf{t} | \mathbf{w}, \mathbf{\Phi}) p(\mathbf{w})}{p(\mathbf{t} | \mathbf{\Phi})}$$</p>
+
+<p>Assuming a Gaussian prior distribution $p(\mathbf{w}) = \mathcal{N}(\mathbf{w} | \mathbf{0}, \alpha^{-1}\mathbf{I})$ and a Gaussian likelihood function $p(\mathbf{t} | \mathbf{w}, \mathbf{\Phi}) = \mathcal{N}(\mathbf{t} | \mathbf{\Phi}\mathbf{w}, \beta^{-1}\mathbf{I})$, the posterior distribution is also Gaussian:</p>
+
+<p>$$p(\mathbf{w} | \mathbf{t}, \mathbf{\Phi}) = \mathcal{N}(\mathbf{w} | \mathbf{m}_N, \mathbf{S}_N)$$</p>
+
+<p>To find the parameters $\mathbf{m}_N$ and $\mathbf{S}_N$, we complete the square for the exponent in the posterior distribution:</p>
+
+<p>$$\log p(\mathbf{w} | \mathbf{t}, \mathbf{\Phi}) = -\frac{\beta}{2} (\mathbf{t} - \mathbf{\Phi}\mathbf{w})^T (\mathbf{t} - \mathbf{\Phi}\mathbf{w}) - \frac{\alpha}{2} \mathbf{w}^T \mathbf{w} + \text{const}$$</p>
+
+<p>$$= -\frac{1}{2} (\mathbf{w} - \mathbf{m}_N)^T \mathbf{S}_N^{-1} (\mathbf{w} - \mathbf{m}_N) + \text{const}$$</p>
+
+<p>Matching the coefficients, we obtain:</p>
+
+<p>$$\mathbf{S}_N^{-1} = \alpha \mathbf{I} + \beta \mathbf{\Phi}^T \mathbf{\Phi}$$</p>
+
+<p>$$\mathbf{S}_N = (\alpha \mathbf{I} + \beta \mathbf{\Phi}^T \mathbf{\Phi})^{-1}$$</p>
+
+<p>$$\mathbf{m}_N = \beta \mathbf{S}_N \mathbf{\Phi}^T \mathbf{t}$$</p>
+
+<p>Therefore, the posterior distribution is:</p>
+
+<p>$$p(\mathbf{w} | \mathbf{t}, \mathbf{\Phi}) = \mathcal{N}(\mathbf{w} | \mathbf{m}_N, \mathbf{S}_N)$$</p>
+
+<p>with parameters:</p>
+
+<p>$$\mathbf{S}_N^{-1} = \alpha \mathbf{I} + \beta \mathbf{\Phi}^T \mathbf{\Phi}$$</p>
+
+<p>$$\mathbf{m}_N = \beta \mathbf{S}_N \mathbf{\Phi}^T \mathbf{t}$$</p>
+
+</body>
+</html>

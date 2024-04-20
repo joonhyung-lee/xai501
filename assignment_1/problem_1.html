@@ -1,0 +1,73 @@
+<html>
+<head>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+<h1>Problem #1</h1>
+
+<h2>Posterior probability distribution</h2>
+<p>Posterior probability distribution of \(w\):</p>
+\begin{align*}
+p(w|x,t,\alpha,\beta) &\propto p(t|w,x,\beta)\,p(w)\\
+&= \mathcal{N}(t|\Phi^\top w, \beta^{-1}\mathrm{I})\,\mathcal{N}(w|m_0, S_0)
+\end{align*}
+
+<p>To get \(p(w|x,t,\alpha,\beta)\) into the form of a Gaussian, we complete the square on \(w\). The exponential terms involving \(w\) are:</p>
+\begin{align*}
+&-\frac{\beta}{2}(t - \Phi^\top w)^\top(t - \Phi^\top w) - \frac{1}{2}(w - m_0)^\top S_0^{-1}(w - m_0)\\
+&= -\frac{\beta}{2}(w^\top\Phi\Phi^\top w - 2w^\top\Phi t) - \frac{1}{2}(w^\top S_0^{-1}w - 2w^\top S_0^{-1}m_0) + \text{const}\\
+&= -\frac{1}{2}[w^\top(\beta\Phi\Phi^\top + S_0^{-1})w - 2w^\top(\beta\Phi t + S_0^{-1}m_0)] + \text{const}\\
+&= -\frac{1}{2}(w - m_N)^\top S_N^{-1}(w - m_N) + \text{const}
+\end{align*}
+
+<p>where</p>
+\begin{align*}
+m_N &= S_N(S_0^{-1}m_0 + \beta\Phi^\top t)\\
+S_N^{-1} &= S_0^{-1} + \beta\Phi^\top\Phi
+\end{align*}
+
+<p>Therefore, the posterior is:</p>
+\begin{equation*}
+p(w|x,t,\alpha,\beta) = \mathcal{N}(w|m_N, S_N)
+\end{equation*}
+
+<h2>Predictive distribution</h2>
+<p>Predictive distribution of \(t\) for a new sample \(x\):</p>
+
+<p>First, the predictive distribution is obtained by marginalizing over the weights \(w\):</p>
+
+\begin{align*}
+p(t|x,x,t) &= \int p(t|x,w)\,p(w|x,t)\,dw \\
+&= \int \mathcal{N}(t|\phi(x)^\top w, \beta^{-1})\,\mathcal{N}(w|m_N, S_N)\,dw
+\end{align*}
+
+<p>Here, \(p(t|x,w)\) is the Gaussian likelihood function, and \(p(w|x,t)\) is the posterior distribution. The posterior distribution is given by:</p>
+
+\begin{align*}
+m_N &= S_N(S_0^{-1}m_0 + \beta\Phi^\top t)\\
+S_N^{-1} &= S_0^{-1} + \beta\Phi^\top\Phi
+\end{align*}
+
+<p>Now, since the product of Gaussian distributions is another Gaussian distribution, the result of the integral is:</p>
+
+\begin{align*}
+p(t|x,x,t) &= \mathcal{N}(t|\phi(x)^\top m_N, \beta^{-1} + \phi(x)^\top S_N \phi(x))\\
+&= \mathcal{N}(t|m(x), \beta^{-1} + s^2(x))
+\end{align*}
+
+<p>where</p>
+
+\begin{align*}
+m(x) &= \phi(x)^\top m_N\\
+s^2(x) &= \phi(x)^\top S_N \phi(x)
+\end{align*}
+
+<p>This result shows that the mean of the predictive distribution for a new input \(x\) is \(m(x)\), and the variance is \(\beta^{-1} + s^2(x)\), where \(s^2(x)\) represents the model's uncertainty.</p>
+
+<p>Therefore, in Bayesian linear regression, predictions for new inputs are obtained in the form of a probability distribution, which allows for the quantification of uncertainty in the predictions.</p>
+
+</body>
+</html>
+
